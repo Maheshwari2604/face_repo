@@ -160,14 +160,29 @@ import cv2,pickle
 import face_recognition as fr
 import numpy as np
 from PIL import Image
+from .models import Check_Image
+import requests
 
 @api_view(["POST"])
 def img_check(request):
     print('you entered')
     print(request)
     print(request.FILES)
-    image = request.FILES['img']
-    print(image)
+    img_r = request.FILES['img']
+    #print(image)
+    print(img_r)
+
+
+    img_obj = Check_Image(image=img_r)
+    img_obj.save()
+
+    Cimage = open("sample.jpeg" , "wb")
+    Cimage.write(requests.get("http://127.0.0.1:8000/media/Check_Image/"+str(img_r)).content)
+    Cimage.close()
+    
+    
+    # q = os.getcwd()
+    # o = os.mkdir(q + "/" + image)
     #image = request.data
     #calling this function
     # logo = Image(image)
@@ -188,8 +203,13 @@ def img_check(request):
     #img_path=input("Enter the image path you want to match:-")
 
     #reading image
-    img=cv2.imread(dataset)
-    print(img)
+    print('hey')
+    #print(img_obj.image)
+    #imagee = Image.open(img_obj.image)
+    #print(image)
+    #imagee.show()
+    img=cv2.imread("sample.jpeg")
+    #print(img)
     process_this_img = True
     #converting BGR image to RGB image
     rgb_img=cv2.cvtColor(img,cv2.COLOR_BGR2RGB)
@@ -198,19 +218,24 @@ def img_check(request):
         face_locations=fr.face_locations(rgb_img)
         #getting face encodings
         current_face_encoding=fr.face_encodings(rgb_img,face_locations)
+        print(current_face_encoding)
+        print(len(current_face_encoding))
+        print(len(known_face_encodings))
         for face_encoding in current_face_encoding:
-        #compariong face with known faces
+            #compariong face with known faces
+            #print("d")
+            print(face_encoding)
+
             name="unknown"
-            matches=fr.compare_faces(known_face_encodings,face_encoding)
-            #print(matches)
+            matches=fr.compare_faces(known_face_encodings,current_face_encoding)
+            print(matches)
         #get a euclidean distance for each comparison face. The distance tells you how similar the faces are.
             face_distances = fr.face_distance(known_face_encodings, face_encoding)
             best_match_index = np.argmin(face_distances)
             if matches[best_match_index]:
                 name = known_names[best_match_index]
+                print(name)
                 accurate=(1.0-min(face_distances))*100
-            else:
-                accurate=max(face_distances)*100
     process_this_frame= not process_this_img
     for (top, right, bottom, left) in face_locations:
         #creating a rectangle around face in frame				
@@ -219,13 +244,13 @@ def img_check(request):
         cv2.putText(img, name, (left , top), font, 1.0, (255, 225, 0), 4)
         cv2.putText(img,str(accurate), (10,50), font, 1.0, (255, 225, 0), 4)		
     #showing our image 
-    cv2.namedWindow('Live',cv2.WINDOW_NORMAL)
-    cv2.resizeWindow('Live', 600,600)
-    cv2.imshow("Live",img)
-    cv2.waitKey(0)		
-    cv2.destroyAllWindows()
+    #cv2.namedWindow('Live',cv2.WINDOW_NORMAL)
+    #cv2.resizeWindow('Live', 600,600)
+    #cv2.imshow("Live",img)
+    #cv2.waitKey(0)		
+    #cv2.destroyAllWindows()
 
-    return Response(image)
+    return Response(img_r)
 
 
 

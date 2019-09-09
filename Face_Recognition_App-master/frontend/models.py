@@ -20,3 +20,10 @@ class Image(models.Model):
         return '%s %s' % (self.user,self.user_img)
 
 
+class Check_Image(models.Model):
+    image = models.ImageField(upload_to='Check_Image/')
+
+    def __str__(self):
+        return '%s' % (self.image)
+
+
