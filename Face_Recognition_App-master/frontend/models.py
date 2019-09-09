@@ -14,7 +14,7 @@ class User(models.Model):
 
 class Image(models.Model):
     user = models.ForeignKey(User,on_delete=models.CASCADE)
-    user_img = models.ImageField(upload_to='user_images/')
+    user_img = models.ImageField(unique=True , upload_to='user_images/')
 
     def __str__(self):
         return '%s %s' % (self.user,self.user_img)
