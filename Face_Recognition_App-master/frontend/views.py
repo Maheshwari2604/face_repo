@@ -159,7 +159,7 @@ import os
 import cv2,pickle
 import face_recognition as fr
 import numpy as np
-from PIL import Image
+#from PIL import Image
 from .models import Check_Image
 import requests
 import base64
@@ -192,7 +192,7 @@ def img_check(request):
     # logo.show()
     # dataset = os.getcwd()+"/"+str(image)
 
-    #create_known_face_encodings()
+    create_known_face_encodings()
 
     #loading those binary files
     font=cv2.FONT_HERSHEY_SIMPLEX
@@ -243,6 +243,10 @@ def img_check(request):
                 print(name)
                 accurate=(1.0-min(face_distances))*100
                 print(accurate)
+                print("user_images/"+str(name))
+                user_image = Image.objects.get(user_img = "user_images/"+str(name))
+                user = user_image.user
+                print(user)
     # process_this_frame = not process_this_img
     # for (top, right, bottom, left) in face_locations:
     #     #creating a rectangle around face in frame				
@@ -257,7 +261,14 @@ def img_check(request):
     #cv2.waitKey(0)		
     #cv2.destroyAllWindows()
 
-    return Response(name)
+
+    dict = {
+        "name" : str(user.name),
+        "match-percentage" : str(accurate)
+    }
+    
+
+    return Response(dict)
 
 
 
@@ -290,7 +301,7 @@ def create_known_face_encodings():
             else:
                 print("fail")
         #getting image names
-            image_name=i.split("_")[0]
+            image_name=i
             known_face_encodings_list.append(known_face_encoding)
             known_names.append(image_name)
         #print(known_face_encodings_list)

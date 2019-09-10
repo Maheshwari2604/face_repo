@@ -10,7 +10,7 @@ class User(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return self.name
+        return '%s %s' % (self.name,self.img)
 
 class Image(models.Model):
     user = models.ForeignKey(User,on_delete=models.CASCADE)
